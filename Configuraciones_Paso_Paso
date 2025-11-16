@@ -1,0 +1,82 @@
+********************
+En el Switch 2960
+********************
+
+enable
+configure terminal
+
+! Crear VLANs
+vlan 10
+ name IT
+exit
+vlan 20
+ name FINANZAS
+exit
+
+! Asignar puertos a cada VLAN
+interface FastEthernet0/2
+ description PC_VLAN10
+  switchport mode access
+ switchport access vlan 10
+ no shutdown
+exit
+
+interface FastEthernet0/3
+ description PC_VLAN20
+ switchport mode access
+ switchport access vlan 20
+ no shutdown
+exit
+
+OPCION 2: Añadir las Interfaces en rango a la Vlan
+
+conf t
+interface range fa0/3 , fa0/4
+switchport mode access
+switchport access vlan 10
+
+conf t
+interface range fa0/4 , fa0/5 
+switchport mode access
+switchport access vlan 20
+
+******************
+! Se configura en el Switch
+! Puerto al router en modo trunk por Gigabit0/1 y la enciendo
+interface GigabitEthernet0/1
+ description LINK_TO_ROUTER
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20
+ no shutdown
+exit
+******************
+end
+write memory
+
+********************
+En el ROUTER 2911 dot1Q
+********************
+
+enable
+configure terminal
+
+interface GigabitEthernet0/0
+ no shutdown
+exit
+********************
+! VLAN 10
+interface GigabitEthernet0/0.10
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.0
+ no shutdown
+exit
+
+! VLAN 20
+interface GigabitEthernet0/0.20
+ encapsulation dot1Q 20
+ ip address 192.168.20.1 255.255.255.0
+ no shutdown
+exit
+********************
+end
+write memory
